@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}WebSift Batch Detail{% endblock %}
+
+{% block content %}
+<section class="hero-band">
+  <div class="hero-copy">
+    <p class="eyebrow">Batch Task</p>
+    <h1>Task #{{ task.id }}</h1>
+    <p class="subtitle">Review the queued records and control processing from one page.</p>
+  </div>
+</section>
+
+<div
+  id="batch-panel"
+  hx-get="/batch/{{ task.id }}/fragment"
+  hx-trigger="load, every 3s"
+  hx-swap="innerHTML"
+></div>
+{% endblock %}

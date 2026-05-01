@@ -14,6 +14,7 @@ class Settings:
     """Runtime settings for the WebSift application."""
 
     anthropic_api_key: str
+    anthropic_model: str
     database_url: str
     max_content_length: int
     request_timeout: int
@@ -25,6 +26,7 @@ def get_settings() -> Settings:
     """Return a cached settings instance."""
     return Settings(
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
+        anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-latest"),
         database_url=os.getenv("DATABASE_URL", "sqlite:///./websift.db"),
         max_content_length=int(os.getenv("MAX_CONTENT_LENGTH", "8000")),
         request_timeout=int(os.getenv("REQUEST_TIMEOUT", "30")),

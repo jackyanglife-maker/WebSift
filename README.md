@@ -1,168 +1,130 @@
 # WebSift
 
-Personal AI-powered web content extraction assistant built with FastAPI.
+WebSift is a local FastAPI tool for extracting readable page content, structuring it with Claude, running batch jobs from CSV/Excel, and exporting results as TXT or DOCX.
 
-## What This Project Is
+## Current Status
 
-WebSift extracts useful text content from web pages, prepares structured data for LLM parsing, and is designed to grow into a local-first tool that supports:
+The phased implementation in `WebSift_Development_Guide.md` is now covered end to end:
 
-- Single URL parsing
-- Batch URL processing from CSV/Excel
-- Downloadable file link detection
-- Export to TXT and DOCX
+- single URL parsing with inline HTMX results
+- batch upload from CSV/Excel with task detail page
+- batch start / pause / resume processing
+- Playwright fallback for JS-heavy pages
+- Claude JSON parsing with retry on API failure and malformed JSON
+- TXT and DOCX export endpoints
+- error handling for bad URLs, bad files, and parser failures
 
-The long-term plan is documented in `WebSift_Development_Guide.md`.
-
-## Current Implementation Status
-
-Implemented now:
-
-- Phase 1 complete:
-  - FastAPI app bootstrapped in `main.py`
-  - Config loading from env in `config.py`
-  - SQLite + SQLAlchemy setup in `database/db.py`
-  - ORM models in `database/models.py`
-  - Base templates and static styles created
-- Phase 2 core modules started:
-  - `crawler/fetcher.py` (httpx fetch + fallback decision logic)
-  - `crawler/cleaner.py` (HTML noise removal + text extraction)
-  - `crawler/browser.py` (Playwright fallback stub, not fully implemented yet)
-  - `test_crawler.py` (manual CLI test script)
-
-Not implemented yet:
-
-- Claude parser integration
-- API routes for single/batch parsing
-- Frontend interaction flow with HTMX
-- Export endpoints and batch orchestration
-
-## Tech Stack
+## Stack
 
 - Python 3.9+
 - FastAPI
+- Jinja2 + HTMX
 - SQLAlchemy + SQLite
 - httpx
 - BeautifulSoup4
-- Playwright (fallback path, pending full implementation)
-- Anthropic SDK (planned phases)
-- Jinja2 + HTMX (planned UI flow)
-
-## Project Structure
-
-```text
-Websift/
-├── main.py
-├── config.py
-├── requirements.txt
-├── .env.example
-├── database/
-│   ├── __init__.py
-│   ├── db.py
-│   └── models.py
-├── crawler/
-│   ├── __init__.py
-│   ├── fetcher.py
-│   ├── cleaner.py
-│   └── browser.py
-├── api/
-├── tasks/
-├── parser/
-├── exports/
-├── templates/
-│   ├── base.html
-│   └── index.html
-├── static/
-│   └── css/
-│       └── style.css
-├── tmp/
-├── test_crawler.py
-└── WebSift_Development_Guide.md
-```
+- Playwright
+- Anthropic SDK
+- pandas
+- python-docx
 
 ## Quick Start
 
-### 1) Create virtual environment
+1. Create a virtual environment:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 2) Install dependencies
+2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
+playwright install chromium
 ```
 
-### 3) Prepare env file
+3. Prepare environment variables:
 
 ```bash
 cp .env.example .env
 ```
 
-At this stage, only crawler + app skeleton are needed, but filling `ANTHROPIC_API_KEY` now avoids later setup interruption.
+Set `ANTHROPIC_API_KEY` in `.env` if you want live parsing through Claude.
 
-### 4) Run the app
+4. Start the app:
 
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Open: `http://127.0.0.1:8000`
+Open `http://127.0.0.1:8000`.
 
-## Database Notes
+## Main Flows
 
-On startup, `main.py` calls `init_db()`, which creates:
+### Single Parse
 
-- `tasks`
-- `records`
-- `file_links`
+- open `/`
+- submit one URL
+- review parsed content, summary, detected file links
+- export result as TXT or DOCX
 
-Database file location is controlled by `DATABASE_URL` in `.env` (default: `sqlite:///./websift.db`).
+### Batch Parse
 
-## Crawler Manual Testing
+- open `/batch`
+- upload a CSV or Excel file with a URL column
+- accepted URL column names: `url`, `link`, `address`, `webpage`, `website`, `href`
+- open the generated task page
+- start, pause, and resume processing
 
-Run default test URLs:
+## Configuration
 
-```bash
-python test_crawler.py
-```
-
-Run custom URL:
-
-```bash
-python test_crawler.py https://example.com
-```
-
-Output includes:
-
-- request status (`ok` / `invalid`)
-- source (`httpx` or `playwright`)
-- cleaned text length
-- text preview and error message (if any)
-
-## Configuration Reference
-
-From `config.py`:
+Environment variables loaded by `config.py`:
 
 - `ANTHROPIC_API_KEY`
+- `ANTHROPIC_MODEL`
 - `DATABASE_URL`
 - `MAX_CONTENT_LENGTH`
 - `REQUEST_TIMEOUT`
 - `PLAYWRIGHT_FALLBACK_THRESHOLD`
 
-## Development Workflow Rules
+Defaults are defined in `.env.example`.
 
-Follow these rules from `WebSift_Development_Guide.md`:
+## Notes
 
-- Implement one phase at a time
-- Ensure each phase is runnable before moving on
-- Keep responsibilities separated by module
-- Wrap external calls in try/except
-- Keep functions small and typed
+- exported files are written to `tmp/`
+- on startup, WebSift deletes export files in `tmp/` older than one hour
+- batch runtime state is kept in memory, which is acceptable for this local personal tool
 
-## Next Recommended Step
+## Manual Checks
 
-Continue Phase 2 by replacing `crawler/browser.py` stub with real Playwright rendering logic and validate fallback behavior on JS-heavy pages.
+Crawler smoke test:
 
-# WebSift
+```bash
+python test_crawler.py https://example.com
+```
+
+Parser smoke test without API key:
+
+```bash
+python test_parser.py
+```
+
+## Project Layout
+
+```text
+WebSift/
+├── main.py
+├── config.py
+├── database/
+├── crawler/
+├── parser/
+├── tasks/
+├── api/
+├── exports/
+├── templates/
+├── static/
+├── tmp/
+├── test_crawler.py
+├── test_parser.py
+└── WebSift_Development_Guide.md
+```

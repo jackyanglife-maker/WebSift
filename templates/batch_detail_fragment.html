@@ -1,0 +1,72 @@
+<section class="result-card">
+  <header class="result-header">
+    <div>
+      <p class="eyebrow">Task Summary</p>
+      <h2>{{ task.name }}</h2>
+    </div>
+    <div class="badges">
+      <span class="badge">status: {{ task.status }}</span>
+      <span class="badge">progress: {{ task.completed }}/{{ task.total }}</span>
+    </div>
+  </header>
+
+  <div class="link-row">
+    <button
+      class="action-btn"
+      hx-post="/batch/{{ task.id }}/start"
+      hx-target="#batch-panel"
+      hx-swap="innerHTML"
+      {% if task.status == "running" %}disabled{% endif %}
+    >Start</button>
+    <button
+      class="action-btn"
+      hx-post="/batch/{{ task.id }}/pause"
+      hx-target="#batch-panel"
+      hx-swap="innerHTML"
+      {% if task.status != "running" %}disabled{% endif %}
+    >Pause</button>
+    <button
+      class="action-btn"
+      hx-post="/batch/{{ task.id }}/resume"
+      hx-target="#batch-panel"
+      hx-swap="innerHTML"
+      {% if task.status == "done" or task.status == "running" %}disabled{% endif %}
+    >Resume</button>
+  </div>
+
+  <section class="content-box">
+    <h3>Records</h3>
+  {% if records %}
+  <table class="records-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>URL</th>
+        <th>Status</th>
+        <th>Page</th>
+        <th>View</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in records %}
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.url }}</td>
+        <td><span class="badge">{{ item.status }}</span></td>
+        <td><span class="badge">{{ item.page_status }}</span></td>
+        <td>
+          {% if item.status == "done" %}
+          <a class="text-link" href="/record/{{ item.id }}">View</a>
+          {% else %}
+          <span class="muted">Disabled</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No records found.</p>
+  {% endif %}
+  </section>
+</section>

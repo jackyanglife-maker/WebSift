@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}WebSift Batch Upload{% endblock %}
+
+{% block content %}
+<section class="hero-band">
+  <div class="hero-copy">
+    <p class="eyebrow">Batch Upload</p>
+    <h1>Create a parsing task from a spreadsheet.</h1>
+    <p class="subtitle">Upload a CSV or Excel file with a URL column. WebSift will create one pending record per row and open the task detail page.</p>
+  </div>
+</section>
+
+<section class="tool-layout tool-layout-single">
+  <section class="tool-panel" aria-labelledby="batch-upload-title">
+    <div class="panel-heading">
+      <h2 id="batch-upload-title">Upload File</h2>
+      <a class="text-link" href="/">Single parse</a>
+    </div>
+
+    <form class="parse-form" action="/batch/upload" method="post" enctype="multipart/form-data">
+      <label for="batch-file">Select file (.csv / .xlsx / .xls)</label>
+      <input id="batch-file" type="file" name="file" accept=".csv,.xlsx,.xls" required>
+      <button type="submit">Create Task</button>
+      <p class="helper-text">Accepted URL column names: `url`, `link`, `address`, `webpage`, `website`, `href`.</p>
+    </form>
+
+    {% if error_message %}
+    <div class="error-box">{{ error_message }}</div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}

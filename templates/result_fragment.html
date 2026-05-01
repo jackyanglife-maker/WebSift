@@ -1,0 +1,67 @@
+<article class="result-card">
+  <header class="result-header">
+    <div>
+      <p class="eyebrow">Parsed Record #{{ record.id }}</p>
+      <h2>{{ record.title or "Untitled Result" }}</h2>
+    </div>
+    <div class="badges">
+      <span class="badge">status: {{ record.status }}</span>
+      <span class="badge">page: {{ record.page_status }}</span>
+    </div>
+  </header>
+
+  <section class="meta-grid">
+    <div class="meta-block">
+      <span class="meta-label">URL</span>
+      <a class="meta-value" href="{{ record.url }}" target="_blank" rel="noreferrer">{{ record.url }}</a>
+    </div>
+    <div class="meta-block">
+      <span class="meta-label">Created</span>
+      <span class="meta-value">{{ record.created_at }}</span>
+    </div>
+  </section>
+
+  {% if record.error_msg %}
+  <div class="error-box">{{ record.error_msg }}</div>
+  {% endif %}
+
+  {% if record.content %}
+  <section class="content-box">
+    <h3>Content</h3>
+    <pre>{{ record.content }}</pre>
+  </section>
+  {% endif %}
+
+  {% if record.summary %}
+  <section class="content-box">
+    <h3>Summary</h3>
+    <p class="summary-copy">{{ record.summary }}</p>
+  </section>
+  {% endif %}
+
+  <section class="content-box">
+    <h3>Export</h3>
+    <div class="link-row">
+      <a class="action-link" href="/api/record/{{ record.id }}/export/txt" target="_blank">Download TXT</a>
+      <a class="action-link" href="/api/record/{{ record.id }}/export/docx" target="_blank">Download DOCX</a>
+    </div>
+  </section>
+
+  <section class="content-box">
+    <h3>Downloadable Files</h3>
+    {% if file_links %}
+    <ul class="file-list">
+      {% for item in file_links %}
+      <li>
+        <a href="{{ item.url }}" target="_blank" rel="noreferrer">{{ item.name or item.url }}</a>
+        <span class="file-type">{{ item.file_type }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No file links detected.</p>
+    {% endif %}
+  </section>
+
+  <p><a class="text-link" href="/record/{{ record.id }}">Open full result page</a></p>
+</article>

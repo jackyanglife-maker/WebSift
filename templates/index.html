@@ -3,6 +3,58 @@
 {% block title %}WebSift Home{% endblock %}
 
 {% block content %}
-<h1>WebSift</h1>
-<p>Phase 1 skeleton is ready.</p>
+<section class="hero-band">
+  <div class="hero-copy">
+    <p class="eyebrow">Single URL Extraction</p>
+    <h1>Extract readable content from one page.</h1>
+    <p class="subtitle">Submit a URL and review the parsed content, summary, detected files, and export links without leaving the page.</p>
+  </div>
+</section>
+
+<section class="tool-layout">
+  <section class="tool-panel" aria-labelledby="parse-form-title">
+    <div class="panel-heading">
+      <h2 id="parse-form-title">Parse URL</h2>
+      <a class="text-link" href="/batch">Batch workflow</a>
+    </div>
+    <form
+      class="parse-form"
+      hx-post="/parse/single"
+      hx-target="#result-panel"
+      hx-swap="innerHTML"
+      hx-indicator="#parse-indicator"
+    >
+      <label for="url-input">Page URL</label>
+      <div class="form-row">
+        <input
+          id="url-input"
+          type="url"
+          name="url"
+          placeholder="https://example.com/article"
+          required
+          autocomplete="url"
+        >
+        <button type="submit">Parse</button>
+      </div>
+      <div class="panel-footer">
+        <p class="helper-text">The crawler will try `httpx` first and fall back to Playwright when content looks incomplete.</p>
+        <div id="parse-indicator" class="loading-inline htmx-indicator" aria-live="polite">
+          Parsing page...
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section
+    id="result-panel"
+    class="result-panel"
+    aria-live="polite"
+    aria-busy="false"
+  >
+    <div class="empty-state">
+      <h2>Result</h2>
+      <p class="placeholder">Submit a URL to render the parsed record here.</p>
+    </div>
+  </section>
+</section>
 {% endblock %}
